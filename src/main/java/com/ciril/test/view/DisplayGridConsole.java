@@ -38,6 +38,7 @@ public class DisplayGridConsole {
             }
             builder.append(System.lineSeparator());
         }
+        builder.append("\n");
         return builder.toString();
     }
 

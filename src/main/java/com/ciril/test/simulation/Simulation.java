@@ -40,9 +40,40 @@ public class Simulation {
 
     /**
      * Fait avancer la simulation d'une étape (t -> t+1). À implémenter.
+     * Le feu s'éteint dans cette case (la case est remplie de cendre et ne peut
+     * ensuite plus brûler)
+     * et il y a une probabilité p que le feu se propage à chacune des 4 cases
+     * adjacentes
      */
     public void step() {
-        // TODO
+        Grille newGrid = this.grid.copyOf();
+
+        for (int row = 0; row < grid.getHeight(); row++) {
+            for (int column = 0; column < grid.getWidth(); column++) {
+                if (grid.getState(row, column) == EtatCase.FIRE) {
+                    // Le feu s'éteint : la case devient cendre et ne brûlera plus.
+                    newGrid.setState(row, column, EtatCase.BURNT);
+
+                    // Tentative de propagation aux 4 cases adjacentes.
+                    propagateTo(newGrid, row - 1, column);
+                    propagateTo(newGrid, row + 1, column);
+                    propagateTo(newGrid, row, column - 1);
+                    propagateTo(newGrid, row, column + 1);
+                }
+            }
+        }
+        this.grid = newGrid;
+        this.stepCount++;
+    }
+
+    /**
+     * Tente d'enflammer la case (row, column)
+     */
+    private void propagateTo(Grille newGrid, int row, int column) {
+        if (grid.getState(row, column) == EtatCase.FOREST
+                && random.nextDouble() < propagationProbability) {
+            newGrid.setState(row, column, EtatCase.FIRE);
+        }
     }
 
     /** Indique s'il reste au moins une case en feu (condition d'arrêt de la simulation). */

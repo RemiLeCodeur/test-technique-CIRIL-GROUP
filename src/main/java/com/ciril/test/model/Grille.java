@@ -35,13 +35,16 @@ public class Grille {
     }
 
     public EtatCase getState(int row, int column) {
-        checkPosition(row, column);
-        return cells[row][column];
+        if (isInsideGrid(row, column)) {
+            return cells[row][column];
+        }
+        return null;
     }
 
     public void setState(int row, int column, EtatCase state) {
-        checkPosition(row, column);
-        cells[row][column] = state;
+        if (isInsideGrid(row, column)) { // Ne rien faire si les coordonnées ne sont pas bonnes
+            cells[row][column] = state;
+        }
     }
 
     public boolean isInsideGrid(int row, int column) {
@@ -49,10 +52,16 @@ public class Grille {
                 && column >= 0 && column < width;
     }
 
-    private void checkPosition(int row, int column) {
-        if (!isInsideGrid(row, column)) {
-            throw new IndexOutOfBoundsException(
-                    "Position hors de la grille : (" + row + ", " + column + ").");
+    /**
+     * Crée une copie indépendante de la grille (même dimensions et mêmes états).
+     */
+    public Grille copyOf() {
+        Grille copy = new Grille(this.getHeight(), this.getWidth());
+        for (int row = 0; row < this.getHeight(); row++) {
+            for (int column = 0; column < this.getWidth(); column++) {
+                copy.setState(row, column, this.getState(row, column));
+            }
         }
+        return copy;
     }
 }
