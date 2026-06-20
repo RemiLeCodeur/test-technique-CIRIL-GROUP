@@ -1,15 +1,13 @@
 package com.ciril.test.view;
 
-import com.ciril.test.model.EtatCase;
-import com.ciril.test.model.Grille;
+import com.ciril.test.model.CellState;
+import com.ciril.test.model.Grid;
 
 import java.io.PrintStream;
 
 /**
- * Affiche une {@link Grille} dans la console sous forme de caractères.
+ * Affiche une {@link Grid} dans la console sous forme de caractères.
  * <p>
- * La conversion grille -> texte ({@link #render}) est séparée de l'écriture
- * ({@link #display}) : on peut ainsi tester le rendu sans rien imprimer.
  */
 public class DisplayGridConsole {
 
@@ -25,12 +23,12 @@ public class DisplayGridConsole {
     }
 
     /** Écrit la grille sur le flux de sortie. */
-    public void display(Grille grid) {
+    public void display(Grid grid) {
         out.print(render(grid));
     }
 
     /** Construit la représentation textuelle de la grille (une ligne par rangée). */
-    public String render(Grille grid) {
+    public String render(Grid grid) {
         StringBuilder builder = new StringBuilder();
         for (int row = 0; row < grid.getHeight(); row++) {
             for (int column = 0; column < grid.getWidth(); column++) {
@@ -42,7 +40,7 @@ public class DisplayGridConsole {
         return builder.toString();
     }
 
-    private char symbol(EtatCase state) {
+    private char symbol(CellState state) {
         return switch (state) {
             case FOREST -> 'T';
             case FIRE -> 'F';

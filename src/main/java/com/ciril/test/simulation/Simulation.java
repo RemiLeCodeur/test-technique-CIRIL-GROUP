@@ -1,8 +1,8 @@
 package com.ciril.test.simulation;
 
 import com.ciril.test.config.Configuration;
-import com.ciril.test.model.EtatCase;
-import com.ciril.test.model.Grille;
+import com.ciril.test.model.CellState;
+import com.ciril.test.model.Grid;
 import com.ciril.test.model.Position;
 
 import java.util.Random;
@@ -15,7 +15,7 @@ public class Simulation {
 
     private final double propagationProbability;
     private final Random random;
-    private Grille grid;
+    private Grid grid;
     private int stepCount;
 
     public Simulation(Configuration configuration) {
@@ -30,10 +30,10 @@ public class Simulation {
         this.stepCount = 0;
     }
 
-    private static Grille buildInitialGrid(Configuration configuration) {
-        Grille initialGrid = new Grille(configuration.getHeight(), configuration.getWidth());
+    private static Grid buildInitialGrid(Configuration configuration) {
+        Grid initialGrid = new Grid(configuration.getHeight(), configuration.getWidth());
         for (Position position : configuration.getInitialFire()) {
-            initialGrid.setState(position.getRow(), position.getColumn(), EtatCase.FIRE);
+            initialGrid.setState(position.getRow(), position.getColumn(), CellState.FIRE);
         }
         return initialGrid;
     }
@@ -46,13 +46,13 @@ public class Simulation {
      * adjacentes
      */
     public void step() {
-        Grille newGrid = this.grid.copyOf();
+        Grid newGrid = this.grid.copyOf();
 
         for (int row = 0; row < grid.getHeight(); row++) {
             for (int column = 0; column < grid.getWidth(); column++) {
-                if (grid.getState(row, column) == EtatCase.FIRE) {
+                if (grid.getState(row, column) == CellState.FIRE) {
                     // Le feu s'éteint : la case devient cendre et ne brûlera plus.
-                    newGrid.setState(row, column, EtatCase.BURNT);
+                    newGrid.setState(row, column, CellState.BURNT);
 
                     // Tentative de propagation aux 4 cases adjacentes.
                     propagateTo(newGrid, row - 1, column);
@@ -67,12 +67,14 @@ public class Simulation {
     }
 
     /**
-     * Tente d'enflammer la case (row, column)
+     * Tente d'enflammer la case (row, column). La case peut être hors grille
+     * (voisin d'une case en bordure) : on vérifie donc les bornes avant tout accès.
      */
-    private void propagateTo(Grille newGrid, int row, int column) {
-        if (grid.getState(row, column) == EtatCase.FOREST
+    private void propagateTo(Grid newGrid, int row, int column) {
+        if (grid.isInsideGrid(row, column)
+                && grid.getState(row, column) == CellState.FOREST
                 && random.nextDouble() < propagationProbability) {
-            newGrid.setState(row, column, EtatCase.FIRE);
+            newGrid.setState(row, column, CellState.FIRE);
         }
     }
 
@@ -80,7 +82,7 @@ public class Simulation {
     public boolean hasFire() {
         for (int row = 0; row < grid.getHeight(); row++) {
             for (int column = 0; column < grid.getWidth(); column++) {
-                if (grid.getState(row, column) == EtatCase.FIRE) {
+                if (grid.getState(row, column) == CellState.FIRE) {
                     return true;
                 }
             }
@@ -88,7 +90,7 @@ public class Simulation {
         return false;
     }
 
-    public Grille getGrid() {
+    public Grid getGrid() {
         return grid;
     }
 
